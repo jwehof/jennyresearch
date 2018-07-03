@@ -28,7 +28,7 @@ k = dn >= datenum(2015,01,01,00,00,00) & dn < datenum(2016,01,01,00,00,00);
 yrday(k) = dn(k)-datenum(2015,01,01,00,00,00);
 
 % convert lat/long coordinates to x-y and cross- and along-channel planes 
-[x,y,xc,yc]=ctriv_xy(lat,lon); % also requires 'ct_thalweg.mat'
+%[x,y,xc,yc]=ctriv_xy(lat,lon); % also requires 'ct_thalweg.mat'
 
 run defaultfigure.m
 yr=[2012,repmat(2013,1,6),repmat(2014,1,6),repmat(2015,1,6)];
@@ -325,18 +325,18 @@ title(['T-S Plot at Saybrook,' datestr(date)])
 legend('Saybrook','Old Lyme (USGS)')
 
 % find T-S for all data, regression and r-sq to see if we can reconstruct s
+% **74 data points in half tidal cycle
 j=find(dn<=dn(1)+datenum(0,0,0,6.21,0,0));
-TSreg = NaN(length(dn),2) ; TSrsq = NaN(size(dn));
-for i=j(end)+1:length(dn)-j-1
-    tidetime = [dn(i)-datenum(0,0,0,6.21,0,0) dn(i)+datenum(0,0,0,6.21,0,0)];
-    k = dn>=tidetime(1) & dn<=tidetime(2);
-    T = tb_ol(k); S = sb_ol(k);
-    [p1,s1,mu1] = polyfit(T,S,1);
-    TSreg(i,:) = p;
-    TScorr = corrcoef(T,S); TSrsq(i) = TScorr(2)^2;
-end
+TSReg = NaN(length(dn),2) ; TSrsq = NaN(size(dn));
     
-
+for i=75:length(dn)-74
+    T = tb_ol(i-74:i+74);
+    S = sb_ol(i-74:i+74);
+    [TSCoef,s1,mu1] = polyfit(T,S,1);
+    TSReg(i,:) = TSCoef;
+    TSCorr = corrcoef(T,S);
+    TSrsq(i) = TSCorr(2)^2;
+end 
 
 %% Data Preparation
 % Prepare the bottom salinity data to be used in the calculation of the
